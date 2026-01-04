@@ -33,14 +33,13 @@ fn Opt.non[T]() Opt[T] {
 fn (o Opt[T]) map[U](f fn (T) U) Opt[U] {
 	if o.some {
 		v := f(o.value)
-		return Opt[U]{
-			value: v
-			some:  true
-		}
+		return some[U](v)
 	}
-	return Opt[U]{
-		some: false
-	}
+	return non[U]()
+}
+
+fn typed[T, U](f fn (T) U) fn (T) U {
+	return f
 }
 
 fn main() {
@@ -48,5 +47,13 @@ fn main() {
 	map_len := fn (x string) int {
 		return x.len
 	}
+
 	println(a.map(map_len))
+	println(a.map(typed[string, int](|x| x.len)))
+	// // expect but not working
+	// println(a.map(|x| x.len)) 
+	// // type hint
+	// println(a.map(|x string| x.len))
+	// println(a.map[int](|x| x.len))
+	// println(a.map[int](|x string| x.len))
 }
